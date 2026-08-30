@@ -1,0 +1,2347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Chapter 20 | Fatmata Jalloh</title>
+
+    <style>
+        :root {
+            --gold: #d4af37;
+            --pink: #ff69b4;
+            --dark: #050508;
+            --paper: #fdfaf0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: var(--dark);
+            color: white;
+            font-family: "Courier New", monospace;
+        }
+
+        /* =========================================================
+           BACKGROUND
+        ========================================================= */
+
+        #binaryCanvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.18;
+            pointer-events: none;
+        }
+
+        /* =========================================================
+           GENERAL SCREENS
+        ========================================================= */
+
+        .screen {
+            position: fixed;
+            inset: 0;
+
+            display: none;
+
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+
+            z-index: 10;
+
+            background: rgba(5, 5, 8, 0.8);
+
+            transition:
+                    opacity 0.8s ease,
+                    transform 1s ease;
+        }
+
+        /* =========================================================
+           START
+        ========================================================= */
+
+        #countdown-screen {
+            display: flex;
+
+            background:
+                    radial-gradient(
+                            circle at center,
+                            #181820 0%,
+                            var(--dark) 75%
+                    );
+
+            z-index: 100;
+        }
+
+        #start-trigger {
+            padding: 16px 42px;
+
+            font-size: 1.15rem;
+
+            background: transparent;
+
+            border: 2px solid var(--gold);
+
+            color: var(--gold);
+
+            cursor: pointer;
+
+            letter-spacing: 4px;
+
+            transition: 0.3s;
+        }
+
+        #start-trigger:hover {
+            background: var(--gold);
+            color: black;
+
+            transform: scale(1.06);
+        }
+
+        #count {
+            font-size: 10rem;
+
+            color: var(--gold);
+
+            font-weight: bold;
+
+            text-shadow:
+                    0 0 30px rgba(212,175,55,0.6);
+        }
+
+        /* =========================================================
+           HAPPY BIRTHDAY WORD REVEAL
+        ========================================================= */
+
+        #text-reveal-screen {
+            z-index: 90;
+
+            background:
+                    radial-gradient(
+                            circle at center,
+                            rgba(212,175,55,0.18),
+                            rgba(5,5,8,0.96)
+                    );
+        }
+
+        .reveal-word {
+            display: none;
+
+            font-family: Georgia, serif;
+
+            font-size: clamp(3rem, 9vw, 7rem);
+
+            color: var(--gold);
+
+            text-align: center;
+
+            text-shadow:
+                    0 0 20px rgba(212,175,55,0.6),
+                    0 0 50px rgba(255,105,180,0.2);
+
+            animation: wordPulse 1.6s forwards;
+        }
+
+        @keyframes wordPulse {
+
+            0% {
+                transform: scale(0.65);
+                opacity: 0;
+                filter: blur(12px);
+            }
+
+            45% {
+                transform: scale(1.08);
+                opacity: 1;
+                filter: blur(0);
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 0;
+                filter: blur(5px);
+            }
+        }
+
+        /* =========================================================
+           BIG BIRTHDAY CELEBRATION
+        ========================================================= */
+
+        #celebration-screen {
+            z-index: 85;
+
+            background:
+                    radial-gradient(
+                            circle at center,
+                            rgba(255,105,180,0.22),
+                            rgba(5,5,8,0.96)
+                    );
+
+            overflow: hidden;
+        }
+
+        .celebration-title {
+            position: relative;
+
+            z-index: 5;
+
+            font-family: Georgia, serif;
+
+            font-size: clamp(3rem, 8vw, 8rem);
+
+            text-align: center;
+
+            color: #fff;
+
+            text-shadow:
+                    0 0 15px var(--pink),
+                    0 0 35px var(--gold),
+                    0 0 70px rgba(255,255,255,0.35);
+
+            animation:
+                    celebrationZoom 2s ease forwards,
+                    celebrationGlow 1.8s infinite alternate;
+        }
+
+        .celebration-subtitle {
+            position: relative;
+
+            z-index: 5;
+
+            margin-top: 15px;
+
+            font-family: Georgia, serif;
+
+            font-size: clamp(1.2rem, 3vw, 2rem);
+
+            color: var(--gold);
+
+            text-align: center;
+
+            opacity: 0;
+
+            animation: fadeUp 1s 0.8s forwards;
+        }
+
+        @keyframes celebrationZoom {
+
+            0% {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+
+            60% {
+                transform: scale(1.12);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes celebrationGlow {
+
+            from {
+                filter: drop-shadow(0 0 5px var(--pink));
+            }
+
+            to {
+                filter:
+                        drop-shadow(0 0 20px var(--gold))
+                        drop-shadow(0 0 35px var(--pink));
+            }
+        }
+
+        @keyframes fadeUp {
+
+            from {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* BALLOONS */
+
+        .balloon {
+            position: absolute;
+
+            bottom: -150px;
+
+            width: 75px;
+            height: 95px;
+
+            border-radius: 50%;
+
+            animation: balloonFloat linear infinite;
+
+            opacity: 0.9;
+        }
+
+        .balloon::after {
+            content: "";
+
+            position: absolute;
+
+            bottom: -80px;
+            left: 50%;
+
+            width: 1px;
+            height: 80px;
+
+            background: rgba(255,255,255,0.5);
+        }
+
+        .balloon:nth-child(1) {
+            left: 8%;
+            animation-duration: 9s;
+            background: #ff69b4;
+        }
+
+        .balloon:nth-child(2) {
+            left: 22%;
+            animation-duration: 12s;
+            background: #d4af37;
+            animation-delay: 2s;
+        }
+
+        .balloon:nth-child(3) {
+            left: 42%;
+            animation-duration: 10s;
+            background: #ff4f81;
+            animation-delay: 1s;
+        }
+
+        .balloon:nth-child(4) {
+            left: 65%;
+            animation-duration: 11s;
+            background: #ffd84d;
+            animation-delay: 3s;
+        }
+
+        .balloon:nth-child(5) {
+            left: 83%;
+            animation-duration: 9s;
+            background: #ff69b4;
+            animation-delay: 1.5s;
+        }
+
+        @keyframes balloonFloat {
+
+            0% {
+                transform:
+                        translateY(0)
+                        rotate(-5deg);
+            }
+
+            100% {
+                transform:
+                        translateY(-125vh)
+                        rotate(8deg);
+            }
+        }
+
+        /* CONFETTI */
+
+        .confetti {
+            position: absolute;
+
+            top: -20px;
+
+            width: 9px;
+            height: 18px;
+
+            animation:
+                    confettiFall linear infinite;
+        }
+
+        @keyframes confettiFall {
+
+            0% {
+                transform:
+                        translateY(-30px)
+                        rotate(0deg);
+
+                opacity: 1;
+            }
+
+            100% {
+                transform:
+                        translateY(110vh)
+                        rotate(720deg);
+
+                opacity: 0;
+            }
+        }
+
+        /* =========================================================
+           DIARY
+        ========================================================= */
+
+        #diary-screen {
+            z-index: 80;
+
+            background:
+                    radial-gradient(
+                            circle at 15% 15%,
+                            rgba(255,182,203,0.5),
+                            transparent 40%
+                    ),
+
+                    radial-gradient(
+                            circle at 85% 25%,
+                            rgba(255,192,214,0.45),
+                            transparent 45%
+                    ),
+
+                    radial-gradient(
+                            circle at 25% 85%,
+                            rgba(255,205,220,0.4),
+                            transparent 40%
+                    ),
+
+                    radial-gradient(
+                            circle at 80% 80%,
+                            rgba(255,192,203,0.45),
+                            transparent 45%
+                    ),
+
+                    #fdf3f6;
+        }
+
+        /* COVER */
+
+        .diary-cover {
+            width: 300px;
+            height: 420px;
+
+            background: white;
+
+            border:
+                    1px solid rgba(214,51,108,0.25);
+
+            border-radius: 4px;
+
+            box-shadow:
+                    0 25px 60px rgba(0,0,0,0.25),
+                    0 0 0 6px rgba(255,255,255,0.7);
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            cursor: pointer;
+
+            transition:
+                    transform 0.7s ease,
+                    opacity 0.7s ease;
+        }
+
+        .diary-cover:hover {
+            transform:
+                    scale(1.03)
+                    rotate(-1deg);
+        }
+
+        .diary-cover.opening {
+            transform:
+                    scale(1.2)
+                    rotateY(-40deg);
+
+            opacity: 0;
+        }
+
+        .cover-inner {
+            text-align: center;
+
+            padding: 20px;
+
+            font-family: Georgia, serif;
+
+            color: #d6336c;
+        }
+
+        .cover-icons {
+            display: flex;
+
+            justify-content: center;
+
+            gap: 16px;
+        }
+
+        .cover-icons svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .cover-inner h2 {
+            font-size: 1.3rem;
+
+            font-weight: normal;
+
+            font-style: italic;
+
+            letter-spacing: 1px;
+
+            margin: 14px 0 2px;
+        }
+
+        .cover-title-main {
+            font-size: 1.6rem;
+
+            font-weight: bold;
+
+            letter-spacing: 3px;
+
+            margin-bottom: 6px;
+        }
+
+        .cover-sub {
+            font-style: italic;
+
+            font-size: 1.1rem;
+
+            opacity: 0.9;
+
+            margin-bottom: 18px;
+        }
+
+        .cover-hint {
+            font-size: 0.85rem;
+
+            color: #d6336c;
+
+            opacity: 0.85;
+
+            animation: bounce 2s infinite;
+
+            margin-top: 18px;
+        }
+
+        /* =========================================================
+           OPEN DIARY
+        ========================================================= */
+
+        .diary-open {
+            display: none;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            width: 100%;
+        }
+
+        .diary-heading {
+            color: #d6336c;
+
+            letter-spacing: 10px;
+
+            margin-bottom: 8px;
+
+            font-family: serif;
+
+            font-size: 1.4rem;
+        }
+
+        /* BOOK */
+
+        .book {
+            width: 92vw;
+
+            max-width: 1200px;
+
+            height: 72vh;
+
+            display: flex;
+
+            position: relative;
+
+            perspective: 2200px;
+
+            cursor: pointer;
+
+            user-select: none;
+        }
+
+        .page {
+            position: relative;
+
+            width: 50%;
+
+            height: 100%;
+
+            background: var(--paper);
+
+            overflow: hidden;
+
+            border: 1px solid #ccc;
+
+            box-shadow:
+                    0 10px 25px rgba(0,0,0,0.35);
+
+            transform-style: preserve-3d;
+        }
+
+        .left-page {
+            border-radius: 10px 0 0 10px;
+        }
+
+        .right-page {
+            border-radius: 0 10px 10px 0;
+        }
+
+        /* PHOTO */
+
+        .diary-media {
+            width: 96%;
+            height: 96%;
+
+            position: absolute;
+
+            left: 2%;
+            top: 2%;
+
+            background: white;
+
+            padding: 5px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            overflow: hidden;
+        }
+
+        .diary-media img,
+        .diary-media video {
+            width: 100%;
+            height: 100%;
+
+            object-fit: cover;
+
+            display: block;
+        }
+
+        /* PAGE TURN */
+
+        .turning-page {
+            position: absolute;
+
+            top: 0;
+
+            width: 50%;
+
+            height: 100%;
+
+            z-index: 20;
+
+            transform-style: preserve-3d;
+
+            transition:
+                    transform 0.9s cubic-bezier(
+                            0.65,
+                            0,
+                            0.35,
+                            1
+                    );
+
+            pointer-events: none;
+        }
+
+        .turning-page.right {
+            right: 0;
+
+            transform-origin: left center;
+        }
+
+        .turning-page.left {
+            left: 0;
+
+            transform-origin: right center;
+        }
+
+        .turning-page.flipped-right {
+            transform:
+                    rotateY(-180deg);
+        }
+
+        .turning-page.flipped-left {
+            transform:
+                    rotateY(180deg);
+        }
+
+        .page-face {
+            position: absolute;
+
+            inset: 0;
+
+            backface-visibility: hidden;
+
+            overflow: hidden;
+
+            background: var(--paper);
+
+            border: 1px solid #ccc;
+        }
+
+        .page-face.front {
+            z-index: 2;
+        }
+
+        .page-face.back {
+            transform: rotateY(180deg);
+        }
+
+        .page-face img,
+        .page-face video {
+            width: 100%;
+            height: 100%;
+
+            object-fit: cover;
+
+            padding: 7px;
+        }
+
+        /* CLICK AREAS */
+
+        .page-click {
+            position: absolute;
+
+            top: 0;
+
+            width: 50%;
+
+            height: 100%;
+
+            z-index: 30;
+
+            cursor: pointer;
+        }
+
+        .page-click.left {
+            left: 0;
+        }
+
+        .page-click.right {
+            right: 0;
+        }
+
+        .page-click:hover {
+            background:
+                    linear-gradient(
+                            to right,
+                            rgba(212,175,55,0.06),
+                            transparent
+                    );
+        }
+
+        .page-click.right:hover {
+            background:
+                    linear-gradient(
+                            to left,
+                            rgba(212,175,55,0.06),
+                            transparent
+                    );
+        }
+
+        /* PAGE HINT */
+
+        .page-hint {
+            margin-top: 10px;
+
+            color: #d6336c;
+
+            font-family: Georgia, serif;
+
+            font-size: 0.95rem;
+
+            opacity: 0.8;
+        }
+
+        /* =========================================================
+           HEART SCREEN
+        ========================================================= */
+
+        #heart-screen {
+            z-index: 70;
+
+            background:
+                    radial-gradient(
+                            circle at center,
+                            rgba(255,105,180,0.18),
+                            rgba(5,5,8,0.95)
+                    );
+        }
+
+        .heart-container {
+            position: relative;
+
+            width: min(550px, 90vw);
+
+            height: min(500px, 70vh);
+        }
+
+        .heart-photo {
+            position: absolute;
+
+            width: 80px;
+            height: 80px;
+
+            border:
+                    1.5px solid var(--gold);
+
+            opacity: 0;
+
+            transform: scale(0);
+
+            transition:
+                    all 0.5s cubic-bezier(
+                            0.175,
+                            0.885,
+                            0.32,
+                            1.275
+                    );
+
+            overflow: hidden;
+        }
+
+        .heart-photo img,
+        .heart-photo video {
+            width: 100%;
+            height: 100%;
+
+            object-fit: cover;
+        }
+
+        .heart-photo.pop {
+            opacity: 1;
+
+            transform: scale(1);
+        }
+
+        /* =========================================================
+           FINAL MESSAGE
+        ========================================================= */
+
+        #message-screen {
+            z-index: 100;
+
+            transform:
+                    translateY(100%);
+
+            background:
+                    radial-gradient(
+                            circle at top,
+                            rgba(212,175,55,0.15),
+                            rgba(5,5,8,0.98)
+                    );
+
+            overflow-y: auto;
+
+            padding: 40px 0;
+
+            transition:
+                    transform 1s ease;
+        }
+
+        .message-content {
+            text-align: center;
+
+            max-width: 750px;
+
+            padding: 20px 30px;
+
+            font-family: serif;
+
+            margin: 0 auto;
+        }
+
+        .message-content h1 {
+            font-size: 3rem;
+
+            color: var(--gold);
+
+            margin-bottom: 25px;
+        }
+
+        .message-content p {
+            font-size: 1.15rem;
+
+            line-height: 1.7;
+
+            margin-bottom: 18px;
+
+            text-align: left;
+        }
+
+        .final-wish {
+            color: var(--pink);
+
+            font-size: 2.2rem;
+
+            font-weight: bold;
+
+            margin-top: 25px;
+
+            text-align: center !important;
+        }
+
+        /* =========================================================
+           GENERAL ANIMATION
+        ========================================================= */
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* =========================================================
+           MOBILE
+        ========================================================= */
+
+        @media (max-width: 700px) {
+
+            #count {
+                font-size: 7rem;
+            }
+
+            .diary-cover {
+                width: 250px;
+                height: 350px;
+            }
+
+            .book {
+                width: 96vw;
+                height: 62vh;
+            }
+
+            .diary-heading {
+                letter-spacing: 5px;
+                font-size: 1.1rem;
+            }
+
+            .heart-photo {
+                width: 58px;
+                height: 58px;
+            }
+
+            .message-content {
+                padding: 20px;
+            }
+
+            .message-content h1 {
+                font-size: 2.2rem;
+            }
+
+            .message-content p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- =========================================================
+     BACKGROUND
+========================================================= -->
+
+<canvas id="binaryCanvas"></canvas>
+
+<!-- =========================================================
+     MUSIC
+========================================================= -->
+
+<audio id="birthdayMusic" loop preload="auto">
+    <source src="media/Unwritten.mp3" type="audio/mpeg">
+</audio>
+
+<!-- =========================================================
+     STAGE 1
+========================================================= -->
+
+<div id="countdown-screen" class="screen">
+
+    <button
+            id="start-trigger"
+            onclick="runProject()"
+    >
+        DECRYPT THE JOURNEY
+    </button>
+
+    <div
+            id="count"
+            style="display:none;"
+    >
+        3
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     STAGE 2
+========================================================= -->
+
+<div
+        id="text-reveal-screen"
+        class="screen"
+>
+
+    <div
+            id="word1"
+            class="reveal-word"
+    >
+        HAPPY
+    </div>
+
+    <div
+            id="word2"
+            class="reveal-word"
+    >
+        BIRTHDAY
+    </div>
+
+    <div
+            id="word3"
+            class="reveal-word"
+    >
+        TO
+    </div>
+
+    <div
+            id="word4"
+            class="reveal-word"
+    >
+        FATMATA
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     STAGE 3
+     BIG BIRTHDAY CELEBRATION
+========================================================= -->
+
+<div
+        id="celebration-screen"
+        class="screen"
+>
+
+    <div class="balloon"></div>
+    <div class="balloon"></div>
+    <div class="balloon"></div>
+    <div class="balloon"></div>
+    <div class="balloon"></div>
+
+    <h1 class="celebration-title">
+        HAPPY BIRTHDAY!
+    </h1>
+
+    <div class="celebration-subtitle">
+        🎉 🎂 🥳 🎈 💛 ✨ 🎈 🥳 🎂 🎉
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     STAGE 4
+     DIARY
+========================================================= -->
+
+<div
+        id="diary-screen"
+        class="screen"
+>
+
+    <!-- COVER -->
+
+    <div
+            id="diary-cover"
+            class="diary-cover"
+            onclick="openDiary()"
+    >
+
+        <div class="cover-inner">
+
+            <div class="cover-icons">
+
+                <svg
+                        viewBox="0 0 40 40"
+                        fill="none"
+                        stroke="#d6336c"
+                        stroke-width="1.3"
+                >
+                    <line
+                            x1="20"
+                            y1="2"
+                            x2="20"
+                            y2="8"
+                    />
+
+                    <circle
+                            cx="20"
+                            cy="20"
+                            r="12"
+                    />
+
+                    <path d="M8 20h24M20 8v24M11 11l18 18M29 11L11 29"/>
+                </svg>
+
+                <svg
+                        viewBox="0 0 40 40"
+                        fill="none"
+                        stroke="#d6336c"
+                        stroke-width="1.3"
+                >
+                    <path d="M20 20 L6 10 A6 8 0 000 20 A6 8 0 006 30 Z"/>
+                    <path d="M20 20 L34 10 A6 8 0 0140 20 A6 8 0 0134 30 Z"/>
+                    <circle
+                            cx="20"
+                            cy="20"
+                            r="3"
+                    />
+                </svg>
+
+            </div>
+
+            <h2>
+                diary of a
+            </h2>
+
+            <p class="cover-title-main">
+                20 YEAR OLD
+            </p>
+
+            <p class="cover-sub">
+                Fatmata
+            </p>
+
+            <div class="cover-icons">
+
+                <svg
+                        viewBox="0 0 40 40"
+                        fill="none"
+                        stroke="#d6336c"
+                        stroke-width="1.3"
+                >
+                    <line
+                            x1="8"
+                            y1="32"
+                            x2="26"
+                            y2="14"
+                    />
+
+                    <path d="M30 6l1.5 3.5L35 11l-3.5 1.5L30 16l-1.5-3.5L25 11l3.5-1.5z"/>
+                </svg>
+
+                <svg
+                        viewBox="0 0 40 40"
+                        fill="none"
+                        stroke="#d6336c"
+                        stroke-width="1.3"
+                >
+                    <path d="M8 16h18v6a9 9 0 01-18 0z"/>
+                    <path d="M26 18h3a4 4 0 010 8h-3"/>
+                    <line
+                            x1="6"
+                            y1="30"
+                            x2="30"
+                            y2="30"
+                    />
+                </svg>
+
+            </div>
+
+            <p class="cover-hint">
+                Tap to open ✨
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- OPEN BOOK -->
+
+    <div
+            id="diary-open"
+            class="diary-open"
+    >
+
+        <h2 class="diary-heading">
+            📖 CHAPTER 20 💛
+        </h2>
+
+
+        <div
+                class="book"
+                id="book"
+        >
+
+            <!-- CURRENT LEFT PHOTO -->
+
+            <div class="page left-page">
+
+                <div
+                        class="diary-media"
+                        id="media-box-L"
+                ></div>
+
+            </div>
+
+
+            <!-- CURRENT RIGHT PHOTO -->
+
+            <div class="page right-page">
+
+                <div
+                        class="diary-media"
+                        id="media-box-R"
+                ></div>
+
+            </div>
+
+
+            <!-- 3D TURNING PAGE -->
+
+            <div
+                    id="turning-page"
+                    class="turning-page right"
+            >
+
+                <div
+                        id="turning-front"
+                        class="page-face front"
+                ></div>
+
+                <div
+                        id="turning-back"
+                        class="page-face back"
+                ></div>
+
+            </div>
+
+
+            <!-- CLICK AREAS -->
+
+            <div
+                    class="page-click left"
+                    onclick="previousSpread(event)"
+                    title="Previous memory"
+            ></div>
+
+            <div
+                    class="page-click right"
+                    onclick="nextSpread(event)"
+                    title="Next memory"
+            ></div>
+
+        </div>
+
+
+        <div class="page-hint">
+            ← Click the pages to turn the diary →
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     STAGE 5
+     HEART
+========================================================= -->
+
+<div
+        id="heart-screen"
+        class="screen"
+>
+
+    <div
+            class="heart-container"
+            id="heart-grid"
+    ></div>
+
+    <div
+            class="hint"
+            onclick="revealMessage()"
+    >
+        SCROLL UP FOR THE FINAL WISH ↑ 💌
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     STAGE 6
+     FINAL MESSAGE
+========================================================= -->
+
+<div
+        id="message-screen"
+        class="screen"
+>
+
+    <div class="message-content">
+
+        <h1>
+            🎉 Happy 20th Birthday, Fatmata Jalloh! 🎂
+        </h1>
+
+        <p>
+            Turning 20 is a big milestone — but looking back at everything we've been through together, it feels even bigger.
+        </p>
+
+        <p>
+            We first met back in 2021, during our first year of high school at SOS. Back then we barely even talked — just two people sharing the same space, with no idea a lifelong friendship was quietly waiting to happen.
+        </p>
+
+        <p>
+            Everything changed in 2022. From that point on, we became inseparable. Looking back now, I'm endlessly grateful for how things turned out, because having you as my best friend has been one of the greatest parts of my life these past four years.
+        </p>
+
+        <p>
+            We've built more memories than I can count relaxed days at the beach soaking in the ocean breeze, the energy of night parties where we just lived in the moment. But honestly, my favorite times are the simple ones: hanging out at your mom's shop, wrestling around, cracking jokes, and just being completely ourselves without a care in the world.
+        </p>
+
+        <p>
+            You've been a constant source of loyalty, realness, and laughter. In a world where everything keeps changing, having a friend like you means more than words can really say.
+        </p>
+
+        <p>
+            As you step into your 20s, I wish you real growth, peace of mind, unshakeable happiness, and massive success in everything you set your heart on. May this decade open every door you've been working toward and bring you everything you deserve.
+        </p>
+
+        <p>
+            Thank you for being my best friend through all of it. Here's to 20 years of your life — and to many more standing side by side as real ones.
+        </p>
+
+        <p class="final-wish">
+            Happy Birthday! 🎉
+        </p>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    /* =========================================================
+       BACKGROUND
+    ========================================================= */
+
+    const canvas =
+        document.getElementById("binaryCanvas");
+
+    const ctx =
+        canvas.getContext("2d");
+
+    let width;
+    let height;
+    let columns;
+    let drops;
+
+    const rainChars = [
+        "♥",
+        "❤️",
+        "💛",
+        "💕",
+        "💖",
+        "✨",
+        "🎉",
+        "🎂"
+    ];
+
+    function resizeCanvas() {
+
+        width =
+            canvas.width =
+                window.innerWidth;
+
+        height =
+            canvas.height =
+                window.innerHeight;
+
+        columns =
+            Math.floor(width / 16);
+
+        drops =
+            new Array(columns).fill(1);
+    }
+
+    function drawRain() {
+
+        ctx.fillStyle =
+            "rgba(5,5,8,0.1)";
+
+        ctx.fillRect(
+            0,
+            0,
+            width,
+            height
+        );
+
+        ctx.font =
+            "16px sans-serif";
+
+        for (
+            let i = 0;
+            i < drops.length;
+            i++
+        ) {
+
+            ctx.fillStyle =
+                Math.random() > 0.5
+                    ? "#d4af37"
+                    : "#ff69b4";
+
+            ctx.fillText(
+                rainChars[
+                    Math.floor(
+                        Math.random() *
+                        rainChars.length
+                    )
+                    ],
+                i * 16,
+                drops[i] * 16
+            );
+
+            if (
+                drops[i] * 16 > height &&
+                Math.random() > 0.975
+            ) {
+                drops[i] = 0;
+            }
+
+            drops[i]++;
+        }
+    }
+
+    window.addEventListener(
+        "resize",
+        resizeCanvas
+    );
+
+    resizeCanvas();
+
+    setInterval(
+        drawRain,
+        50
+    );
+
+
+    /* =========================================================
+       DIARY DATA
+    ========================================================= */
+
+    const diaryMedia = [
+
+        [
+            "media/img1.jpeg",
+            "media/img2.jpeg"
+        ],
+
+        [
+            "media/img3.jpeg",
+            "media/img4.jpeg"
+        ],
+
+        [
+            "media/img5.jpeg",
+            "media/img6.jpeg"
+        ],
+
+        [
+            "media/img7.jpeg",
+            "media/img8.jpeg"
+        ],
+
+        [
+            "media/img9.jpeg",
+            "media/img10.jpeg"
+        ],
+
+        [
+            "media/img11.jpeg",
+            "media/img12.jpeg"
+        ],
+
+        [
+            "media/img13.jpeg",
+            "media/img14.jpeg"
+        ],
+
+        [
+            "media/img15.jpeg",
+            "media/img16.jpeg"
+        ],
+
+        [
+            "media/img17.jpeg",
+            "media/img18.jpeg"
+        ],
+
+        [
+            "media/img19.mov",
+            "media/img20.mov"
+        ]
+
+    ];
+
+
+    let spreadIndex = 0;
+
+    let turning = false;
+
+    let globalState = "start";
+
+
+    /* =========================================================
+       START PROJECT
+    ========================================================= */
+
+    function runProject() {
+
+        /* START MUSIC */
+
+        const music =
+            document.getElementById(
+                "birthdayMusic"
+            );
+
+        music.volume = 0.6;
+
+        music.play().catch(
+            error => {
+                console.log(
+                    "Music playback:",
+                    error
+                );
+            }
+        );
+
+
+        /* HIDE BUTTON */
+
+        document.getElementById(
+            "start-trigger"
+        ).style.display = "none";
+
+
+        /* COUNTDOWN */
+
+        const count =
+            document.getElementById(
+                "count"
+            );
+
+        count.style.display =
+            "block";
+
+        let t = 3;
+
+        const timer =
+            setInterval(() => {
+
+                t--;
+
+                if (t > 0) {
+
+                    count.innerText =
+                        t;
+
+                } else {
+
+                    clearInterval(timer);
+
+                    startTextReveal();
+                }
+
+            }, 1000);
+    }
+
+
+    /* =========================================================
+       WORD REVEAL
+    ========================================================= */
+
+    async function startTextReveal() {
+
+        document.getElementById(
+            "countdown-screen"
+        ).style.display = "none";
+
+
+        const screen =
+            document.getElementById(
+                "text-reveal-screen"
+            );
+
+        screen.style.display =
+            "flex";
+
+
+        const words = [
+            "word1",
+            "word2",
+            "word3",
+            "word4"
+        ];
+
+
+        for (
+            const id of words
+            ) {
+
+            const element =
+                document.getElementById(id);
+
+            element.style.display =
+                "block";
+
+            await new Promise(
+                resolve =>
+                    setTimeout(
+                        resolve,
+                        1600
+                    )
+            );
+
+            element.style.display =
+                "none";
+        }
+
+
+        screen.style.display =
+            "none";
+
+
+        showCelebration();
+    }
+
+
+    /* =========================================================
+       BIG CELEBRATION
+    ========================================================= */
+
+    function showCelebration() {
+
+        const screen =
+            document.getElementById(
+                "celebration-screen"
+            );
+
+        screen.style.display =
+            "flex";
+
+
+        createConfetti();
+
+
+        setTimeout(() => {
+
+            screen.style.display =
+                "none";
+
+            document.getElementById(
+                "diary-screen"
+            ).style.display =
+                "flex";
+
+        }, 5000);
+    }
+
+
+    /* =========================================================
+       CONFETTI
+    ========================================================= */
+
+    function createConfetti() {
+
+        const screen =
+            document.getElementById(
+                "celebration-screen"
+            );
+
+
+        for (
+            let i = 0;
+            i < 100;
+            i++
+        ) {
+
+            const piece =
+                document.createElement(
+                    "div"
+                );
+
+            piece.className =
+                "confetti";
+
+
+            piece.style.left =
+                Math.random() * 100 +
+                "%";
+
+
+            piece.style.animationDuration =
+                (3 + Math.random() * 5) +
+                "s";
+
+
+            piece.style.animationDelay =
+                Math.random() * 3 +
+                "s";
+
+
+            piece.style.transform =
+                `rotate(${Math.random() * 360}deg)`;
+
+
+            const shapes = [
+                "#d4af37",
+                "#ff69b4",
+                "#ffffff",
+                "#ffd700"
+            ];
+
+            piece.style.background =
+                shapes[
+                    Math.floor(
+                        Math.random() *
+                        shapes.length
+                    )
+                    ];
+
+
+            screen.appendChild(
+                piece
+            );
+        }
+    }
+
+
+    /* =========================================================
+       OPEN DIARY
+    ========================================================= */
+
+    function openDiary() {
+
+        const cover =
+            document.getElementById(
+                "diary-cover"
+            );
+
+        cover.classList.add(
+            "opening"
+        );
+
+
+        setTimeout(() => {
+
+            cover.style.display =
+                "none";
+
+
+            document.getElementById(
+                "diary-open"
+            ).style.display =
+                "flex";
+
+
+            spreadIndex = 0;
+
+            loadSpread();
+
+        }, 650);
+    }
+
+
+    /* =========================================================
+       MEDIA RENDER
+    ========================================================= */
+
+    function renderMedia(file) {
+
+        const lower =
+            file.toLowerCase();
+
+
+        if (
+            lower.endsWith(".mp4") ||
+            lower.endsWith(".mov")
+        ) {
+
+            return `
+                    <video
+                        src="${file}"
+                        autoplay
+                        loop
+                        muted
+                        playsinline
+                    ></video>
+                `;
+
+        }
+
+
+        return `
+                <img
+                    src="${file}"
+                    alt="Fatmata memory"
+                    loading="eager"
+                >
+            `;
+    }
+
+
+    /* =========================================================
+       LOAD CURRENT SPREAD
+    ========================================================= */
+
+    function loadSpread() {
+
+        const boxL =
+            document.getElementById(
+                "media-box-L"
+            );
+
+        const boxR =
+            document.getElementById(
+                "media-box-R"
+            );
+
+
+        boxL.innerHTML =
+            renderMedia(
+                diaryMedia[
+                    spreadIndex
+                    ][0]
+            );
+
+
+        boxR.innerHTML =
+            renderMedia(
+                diaryMedia[
+                    spreadIndex
+                    ][1]
+            );
+    }
+
+
+    /* =========================================================
+       PREPARE TURNING PAGE
+    ========================================================= */
+
+    function prepareTurningPage(
+        direction
+    ) {
+
+        const turningPage =
+            document.getElementById(
+                "turning-page"
+            );
+
+        const front =
+            document.getElementById(
+                "turning-front"
+            );
+
+        const back =
+            document.getElementById(
+                "turning-back"
+            );
+
+
+        turningPage.className =
+            "turning-page " +
+            direction;
+
+
+        if (
+            direction === "right"
+        ) {
+
+            turningPage.style.right =
+                "0";
+
+            turningPage.style.left =
+                "auto";
+
+        } else {
+
+            turningPage.style.left =
+                "0";
+
+            turningPage.style.right =
+                "auto";
+        }
+
+
+        front.innerHTML =
+            renderMedia(
+                diaryMedia[
+                    spreadIndex
+                    ][
+                    direction === "right"
+                        ? 1
+                        : 0
+                    ]
+            );
+
+
+        back.innerHTML =
+            renderMedia(
+                diaryMedia[
+                    direction === "right"
+                        ? spreadIndex + 1
+                        : spreadIndex - 1
+                    ][
+                    direction === "right"
+                        ? 0
+                        : 1
+                    ]
+            );
+
+
+        turningPage.style.display =
+            "block";
+
+
+        return turningPage;
+    }
+
+
+    /* =========================================================
+       NEXT MEMORY
+       RIGHT PAGE → TURN FORWARD
+    ========================================================= */
+
+    function nextSpread(event) {
+
+        if (event) {
+            event.stopPropagation();
+        }
+
+
+        if (turning) return;
+
+
+        if (
+            spreadIndex >=
+            diaryMedia.length - 1
+        ) {
+
+            closeDiary();
+
+            return;
+        }
+
+
+        turning = true;
+
+
+        const turningPage =
+            prepareTurningPage(
+                "right"
+            );
+
+
+        requestAnimationFrame(() => {
+
+            requestAnimationFrame(() => {
+
+                turningPage.classList.add(
+                    "flipped-right"
+                );
+
+            });
+
+        });
+
+
+        setTimeout(() => {
+
+            spreadIndex++;
+
+            loadSpread();
+
+            turningPage.className =
+                "turning-page right";
+
+            turningPage.style.display =
+                "none";
+
+            turning = false;
+
+        }, 950);
+    }
+
+
+    /* =========================================================
+       PREVIOUS MEMORY
+       LEFT PAGE → TURN BACK
+    ========================================================= */
+
+    function previousSpread(event) {
+
+        if (event) {
+            event.stopPropagation();
+        }
+
+
+        if (turning) return;
+
+
+        if (spreadIndex <= 0) {
+
+            return;
+        }
+
+
+        turning = true;
+
+
+        const turningPage =
+            prepareTurningPage(
+                "left"
+            );
+
+
+        requestAnimationFrame(() => {
+
+            requestAnimationFrame(() => {
+
+                turningPage.classList.add(
+                    "flipped-left"
+                );
+
+            });
+
+        });
+
+
+        setTimeout(() => {
+
+            spreadIndex--;
+
+            loadSpread();
+
+            turningPage.className =
+                "turning-page right";
+
+            turningPage.style.display =
+                "none";
+
+            turning = false;
+
+        }, 950);
+    }
+
+
+    /* =========================================================
+       CLOSE DIARY AT END
+    ========================================================= */
+
+    function closeDiary() {
+
+        const diary =
+            document.getElementById(
+                "diary-screen"
+            );
+
+
+        diary.style.transform =
+            "scale(0.8) rotateY(25deg)";
+
+        diary.style.opacity =
+            "0";
+
+
+        setTimeout(() => {
+
+            diary.style.display =
+                "none";
+
+            diary.style.transform =
+                "";
+
+            diary.style.opacity =
+                "";
+
+
+            showHeart();
+
+        }, 850);
+    }
+
+
+    /* =========================================================
+       HEART COLLAGE
+    ========================================================= */
+
+    function showHeart() {
+
+        document.getElementById(
+            "diary-screen"
+        ).style.display =
+            "none";
+
+
+        const screen =
+            document.getElementById(
+                "heart-screen"
+            );
+
+        screen.style.display =
+            "flex";
+
+
+        const grid =
+            document.getElementById(
+                "heart-grid"
+            );
+
+
+        grid.innerHTML = "";
+
+
+        const coords = [
+
+            {x:30,y:10},
+            {x:45,y:5},
+            {x:55,y:5},
+            {x:70,y:10},
+            {x:85,y:20},
+            {x:90,y:35},
+            {x:85,y:55},
+            {x:75,y:70},
+            {x:60,y:85},
+            {x:50,y:95},
+            {x:40,y:85},
+            {x:25,y:70},
+            {x:15,y:55},
+            {x:10,y:35},
+            {x:15,y:20},
+            {x:30,y:30},
+            {x:40,y:45},
+            {x:50,y:60},
+            {x:60,y:45},
+            {x:70,y:30}
+
+        ];
+
+
+        const heartMedia =
+            diaryMedia.flat();
+
+
+        coords.forEach(
+            (coordinate, i) => {
+
+                const item =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                item.className =
+                    "heart-photo";
+
+
+                item.style.left =
+                    coordinate.x + "%";
+
+
+                item.style.top =
+                    coordinate.y + "%";
+
+
+                item.innerHTML =
+                    renderMedia(
+                        heartMedia[i]
+                    );
+
+
+                grid.appendChild(
+                    item
+                );
+
+
+                setTimeout(() => {
+
+                    item.classList.add(
+                        "pop"
+                    );
+
+                }, 150 + i * 100);
+
+            }
+        );
+
+
+        globalState =
+            "heart";
+    }
+
+
+    /* =========================================================
+       FINAL MESSAGE
+    ========================================================= */
+
+    function revealMessage() {
+
+        if (
+            globalState !==
+            "heart"
+        ) {
+            return;
+        }
+
+
+        globalState =
+            "end";
+
+
+        const message =
+            document.getElementById(
+                "message-screen"
+            );
+
+
+        message.style.display =
+            "flex";
+
+
+        setTimeout(() => {
+
+            document.getElementById(
+                "heart-screen"
+            ).style.transform =
+                "translateY(-100%)";
+
+
+            message.style.transform =
+                "translateY(0)";
+
+        }, 50);
+    }
+
+
+    /* =========================================================
+       SCROLL
+    ========================================================= */
+
+    function handleScroll(event) {
+
+        if (
+            event.deltaY > 0 &&
+            globalState === "heart"
+        ) {
+
+            revealMessage();
+        }
+    }
+
+
+    window.addEventListener(
+        "wheel",
+        handleScroll,
+        { passive: true }
+    );
+
+
+    /* =========================================================
+       TOUCH
+    ========================================================= */
+
+    let touchStartY = null;
+
+
+    document.addEventListener(
+        "touchstart",
+        event => {
+
+            touchStartY =
+                event.touches[0].clientY;
+
+        },
+        { passive: true }
+    );
+
+
+    document.addEventListener(
+        "touchend",
+        event => {
+
+            if (
+                touchStartY === null
+            ) {
+                return;
+            }
+
+
+            const touchEndY =
+                event.changedTouches[0]
+                    .clientY;
+
+
+            if (
+                touchStartY -
+                touchEndY >
+                50
+            ) {
+
+                if (
+                    globalState ===
+                    "heart"
+                ) {
+
+                    revealMessage();
+                }
+            }
+
+
+            touchStartY =
+                null;
+
+        },
+        { passive: true }
+    );
+
+</script>
+
+</body>
+</html>

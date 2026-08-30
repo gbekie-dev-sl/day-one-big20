@@ -1320,11 +1320,11 @@
         </h1>
 
         <p>
-            Turning 20 is a big milestone but looking back at everything we've been through together, it feels even bigger.
+            Turning 20 is a big milestone — but looking back at everything we've been through together, it feels even bigger.
         </p>
 
         <p>
-            We first met back in 2021, during our first year of high school at SOS. Back then we barely even talked just two people sharing the same space, with no idea a lifelong friendship was quietly waiting to happen.
+            We first met back in 2021, during our first year of high school at SOS. Back then we barely even talked — just two people sharing the same space, with no idea a lifelong friendship was quietly waiting to happen.
         </p>
 
         <p>
@@ -1344,7 +1344,7 @@
         </p>
 
         <p>
-            Thank you for being my best friend through all of it. Here's to 20 years of your life and to many more standing side by side as real ones.
+            Thank you for being my best friend through all of it. Here's to 20 years of your life — and to many more standing side by side as real ones.
         </p>
 
         <p class="final-wish">
@@ -1456,10 +1456,18 @@
 
     resizeCanvas();
 
-    setInterval(
+    let rainIntervalId = setInterval(
         drawRain,
         50
     );
+
+    function throttleRain() {
+        // The falling emoji rain is purely decorative and competes with
+        // photo/video decoding for CPU on mobile. Once the diary opens,
+        // slow it way down so real content stays smooth.
+        clearInterval(rainIntervalId);
+        rainIntervalId = setInterval(drawRain, 220);
+    }
 
 
     /* =========================================================
@@ -1670,17 +1678,26 @@
         createConfetti();
 
 
-        setTimeout(() => {
+        // Wait for two animation frames so the browser has actually
+        // painted the celebration before the 5s countdown starts —
+        // otherwise a busy phone can skip straight past it unseen.
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
 
-            screen.style.display =
-                "none";
+                setTimeout(() => {
 
-            document.getElementById(
-                "diary-screen"
-            ).style.display =
-                "flex";
+                    screen.style.display =
+                        "none";
 
-        }, 5000);
+                    document.getElementById(
+                        "diary-screen"
+                    ).style.display =
+                        "flex";
+
+                }, 5000);
+
+            });
+        });
     }
 
 
@@ -1695,10 +1712,15 @@
                 "celebration-screen"
             );
 
+        const pieceCount =
+            window.innerWidth < 700
+                ? 45
+                : 100;
+
 
         for (
             let i = 0;
-            i < 100;
+            i < pieceCount;
             i++
         ) {
 
@@ -1785,6 +1807,8 @@
 
             loadSpread();
 
+            throttleRain();
+
         }, 650);
     }
 
@@ -1811,6 +1835,7 @@
                         loop
                         muted
                         playsinline
+                        preload="metadata"
                     ></video>
                 `;
 
@@ -1822,6 +1847,7 @@
                     src="${file}"
                     alt="Fatmata memory"
                     loading="eager"
+                    decoding="async"
                 >
             `;
     }
